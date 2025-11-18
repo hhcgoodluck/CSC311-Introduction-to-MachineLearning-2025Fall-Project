@@ -4,7 +4,7 @@ import re
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import MultiLabelBinarizer
 
-file_name = "training_data_clean.csv"
+file_name = "../DataSet/training_data_clean.csv"
 
 def process_multiselect(series, target_tasks):
     """

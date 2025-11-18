@@ -1,10 +1,10 @@
 import numpy as np
 import pandas as pd
 import re
-from sklearn.linear_model import LogisticRegression
+from sklearn.naive_bayes import MultinomialNB
 from sklearn.preprocessing import MultiLabelBinarizer
 
-file_name = file_name = "../DataSet/training_data_clean.csv"
+file_name = "training_data_clean.csv"
 
 def process_multiselect(series, target_tasks):
     """
@@ -24,15 +24,16 @@ def process_multiselect(series, target_tasks):
 def extract_rating(response):
     """
     Extract numeric rating from responses like '3 - Sometimes'.
-    Returns None for missing responses
+    Returns None for missing / unparsable responses.
     """
     match = re.match(r'^(\d+)', str(response))
     return int(match.group(1)) if match else None
 
+
 def main():
     df = pd.read_csv(file_name)
-    df.dropna(inplace=True)
 
+    # ---- 1. 构造多选题特征 ----
     target_tasks = [
         'Math computations',
         'Writing or debugging code',
@@ -56,9 +57,15 @@ def main():
     best_tasks_encoded = mlb_best.fit_transform(best_tasks_lists)
     suboptimal_tasks_encoded = mlb_subopt.fit_transform(suboptimal_tasks_lists)
 
+    # ---- 2. Likert 评分题：提取数字 1–5 ----
     academic_numeric = df['How likely are you to use this model for academic tasks?'].apply(extract_rating)
     subopt_numeric = df['Based on your experience, how often has this model given you a response that felt suboptimal?'].apply(extract_rating)
 
+    # 如果有解析失败（None），用 0 填充，保证都是非负数
+    academic_numeric = academic_numeric.fillna(0)
+    subopt_numeric = subopt_numeric.fillna(0)
+
+    # ---- 3. 拼成特征矩阵 X ----
     X = np.hstack([
         academic_numeric.values.reshape(-1, 1),
         subopt_numeric.values.reshape(-1, 1),
@@ -67,24 +74,25 @@ def main():
     ])
 
     y = df['label'].values
-    
-    n_train = int(0.7 * len(X))
-    X_train, y_train, X_test, y_test = X[:n_train], y[:n_train], X[n_train:], y[n_train:]
 
-    logreg = LogisticRegression(
-        # Default: multi_class='multinomial' - Uses the softmax (multinomial logistic regression) formulation.
-        solver='lbfgs', # Optimization algorithm used to find the model parameters
-        max_iter=1000, # Ensures the optimizer has time to converge
-        random_state=0 # Controls randomness during optimization and initialization. Makes results reproducible.
+    # ---- 4. 简单 70/30 随机划分（暂时不做 student_id 分组）----
+    n_train = int(0.7 * len(X))
+    X_train, y_train = X[:n_train], y[:n_train]
+    X_test, y_test = X[n_train:], y[n_train:]
+
+    # ---- 5. 训练 Multinomial Naive Bayes ----
+    nb = MultinomialNB(
+        alpha=1.0  # Laplace smoothing
     )
 
-    logreg.fit(X_train, y_train)
+    nb.fit(X_train, y_train)
 
-    train_acc = logreg.score(X_train, y_train)
-    test_acc = logreg.score(X_test, y_test)
+    train_acc = nb.score(X_train, y_train)
+    test_acc = nb.score(X_test, y_test)
 
-    print(f"Training accuracy (LogReg): {train_acc:.3f}")
-    print(f"Test accuracy (LogReg): {test_acc:.3f}")
+    print(f"Training accuracy (Multinomial NB): {train_acc:.3f}")
+    print(f"Test accuracy (Multinomial NB): {test_acc:.3f}")
+
 
 if __name__ == "__main__":
     main()

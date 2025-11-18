@@ -5,7 +5,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import MultiLabelBinarizer
 from sklearn.feature_extraction.text import CountVectorizer
 
-file_name = "training_data_clean.csv"
+file_name = "../DataSet/training_data_clean.csv"
 
 # All rating / Likert-style questions we want to use (4 columns)
 RATING_COLS = [
