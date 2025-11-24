@@ -1,0 +1,28 @@
+{
+  "rating_cols": [
+    "How likely are you to use this model for academic tasks?",
+    "Based on your experience, how often has this model given you a response that felt suboptimal?",
+    "How often do you expect this model to provide responses with references or supporting evidence?",
+    "How often do you verify this model's responses?"
+  ],
+  "neutral_rating_value": 3,
+  "best_tasks_col": "Which types of tasks do you feel this model handles best? (Select all that apply.)",
+  "subopt_tasks_col": "For which types of tasks do you feel this model tends to give suboptimal responses? (Select all that apply.)",
+  "target_tasks": [
+    "Math computations",
+    "Writing or debugging code",
+    "Data processing or analysis",
+    "Explaining complex concepts simply",
+    "Writing or editing essays/reports",
+    "Drafting professional text",
+    "Brainstorming or generating creative ideas",
+    "Converting content between formats"
+  ],
+  "text_cols": [
+    "In your own words, what kinds of tasks would you use this model for?",
+    "Think of one task where this model gave you a suboptimal response. What did the response look like, and why did you find it suboptimal?",
+    "When you verify a response from this model, how do you usually go about it?"
+  ],
+  "n_structured_features": 20,
+  "max_text_features": 3000
+}
