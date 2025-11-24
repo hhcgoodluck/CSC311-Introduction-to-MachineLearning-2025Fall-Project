@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import re
 
+from sklearn.metrics import accuracy_score, f1_score
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.preprocessing import MultiLabelBinarizer
 from sklearn.feature_extraction.text import CountVectorizer
@@ -176,15 +177,26 @@ def main():
     alpha_values = [0.5, 1.0, 1.5]
     for alpha in alpha_values:
         print(f"\n=== Training MultinomialNB with alpha = {alpha} ===")
-        nb = MultinomialNB(alpha=alpha)  # smoothing parameter
+        nb = MultinomialNB(alpha=alpha)
 
         nb.fit(X_train, y_train)
 
-        train_acc = nb.score(X_train, y_train)
-        test_acc = nb.score(X_test, y_test)
+        # Predictions
+        y_train_pred = nb.predict(X_train)
+        y_test_pred = nb.predict(X_test)
+
+        # Accuracy
+        train_acc = accuracy_score(y_train, y_train_pred)
+        test_acc = accuracy_score(y_test, y_test_pred)
+
+        # Macro-F1
+        train_macro_f1 = f1_score(y_train, y_train_pred, average="macro")
+        test_macro_f1 = f1_score(y_test, y_test_pred, average="macro")
 
         print(f"Training accuracy: {train_acc:.3f}")
+        print(f"Training macro-F1: {train_macro_f1:.3f}")
         print(f"Test accuracy:     {test_acc:.3f}")
+        print(f"Test macro-F1:     {test_macro_f1:.3f}")
 
 
 if __name__ == "__main__":
